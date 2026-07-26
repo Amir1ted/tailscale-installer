@@ -1,0 +1,6 @@
+dist/
+*.zip
+*.log
+.DS_Store
+.idea/
+.vscode/

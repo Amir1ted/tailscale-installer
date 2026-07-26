@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Validate tag and project version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          project_version="$(tr -d '[:space:]' < VERSION)"
+          script_version="$(
+            sed -n 's/^readonly SCRIPT_VERSION="\([^"]*\)"/\1/p' install.sh
+          )"
+          test "${TAG}" = "v${project_version}"
+          test "${script_version}" = "${project_version}"
+          git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null
+
+      - name: Run checks
+        run: |
+          bash -n install.sh tests/test.sh tests/mock-command.sh
+          ./tests/test.sh
+
+      - name: Build archive and checksum
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          archive="ubuntu-tailscale-installer-${TAG}.zip"
+          git archive \
+            --format=zip \
+            --prefix="ubuntu-tailscale-installer-${TAG}/" \
+            --output="${archive}" \
+            "${GITHUB_SHA}"
+          sha256sum "${archive}" > "${archive}.sha256"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          archive="ubuntu-tailscale-installer-${TAG}.zip"
+          gh release create "${TAG}" \
+            "${archive}" \
+            "${archive}.sha256" \
+            --verify-tag \
+            --generate-notes \
+            --title "Ubuntu Tailscale Installer ${TAG}"

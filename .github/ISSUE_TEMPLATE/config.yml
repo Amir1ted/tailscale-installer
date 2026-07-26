@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Tailscale support
+    url: https://tailscale.com/contact/support
+    about: Account, tailnet, service-side, and official client support
+  - name: Tailscale documentation
+    url: https://tailscale.com/docs
+    about: Official configuration and product documentation
