@@ -7,6 +7,15 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Unreleased
 
+## 1.0.1 - 2026-07-26
+
+### Fixed
+
+- Made CI and the test suite independent of executable permission bits, which
+  can be lost when project files are uploaded through GitHub's web interface
+- Replaced the grouped Dependabot configuration with GitHub's minimal
+  documented `github-actions` configuration for maximum schema compatibility
+
 ## 1.0.0 - 2026-07-26
 
 ### Added

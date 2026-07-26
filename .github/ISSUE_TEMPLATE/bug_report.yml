@@ -27,7 +27,7 @@ body:
     attributes:
       label: Installer version
       description: Output of `./install.sh --version`
-      placeholder: install.sh 1.0.0
+      placeholder: install.sh x.y.z
     validations:
       required: true
 

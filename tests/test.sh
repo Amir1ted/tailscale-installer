@@ -76,6 +76,10 @@ run_quietly() {
     "$@" >/dev/null 2>&1
 }
 
+run_installer() {
+    bash "${INSTALLER}" "$@"
+}
+
 cleanup_tests() {
     if [[ -n "${TEMP_TEST_DIR}" && -d "${TEMP_TEST_DIR}" ]]; then
         rm -f -- \
@@ -151,12 +155,12 @@ run_cli_tests() {
     local expected_version
 
     expected_version="$(tr -d '[:space:]' < "${PROJECT_DIR}/VERSION")"
-    output="$("${INSTALLER}" --version)"
+    output="$(run_installer --version)"
 
     assert_contains "CLI reports the VERSION file value" "${output}" "${expected_version}"
-    assert_success "help exits successfully" run_quietly "${INSTALLER}" --help
-    assert_failure "unknown option is rejected" run_quietly "${INSTALLER}" --definitely-unknown
-    assert_failure "invalid package channel is rejected" run_quietly "${INSTALLER}" --channel edge
+    assert_success "help exits successfully" run_quietly run_installer --help
+    assert_failure "unknown option is rejected" run_quietly run_installer --definitely-unknown
+    assert_failure "invalid package channel is rejected" run_quietly run_installer --channel edge
 }
 
 run_static_policy_tests() {
@@ -191,11 +195,12 @@ run_dry_run_test() {
     chmod 0755 "${TEMP_TEST_DIR}/mockbin/id"
 
     output="$(
+        env \
         PATH="${TEMP_TEST_DIR}/mockbin:${PATH}" \
         UTI_OS_RELEASE_FILE="${TEMP_TEST_DIR}/os-release" \
         UTI_SYSTEMD_RUNTIME_DIR="${TEMP_TEST_DIR}/systemd" \
         TS_AUTHKEY="${secret}" \
-        "${INSTALLER}" \
+        bash "${INSTALLER}" \
             --dry-run \
             --no-color \
             --hostname app-01 \
@@ -217,10 +222,11 @@ run_dry_run_test() {
         'VERSION_CODENAME=bionic' > "${TEMP_TEST_DIR}/os-release"
 
     if legacy_output="$(
+        env \
         PATH="${TEMP_TEST_DIR}/mockbin:${PATH}" \
         UTI_OS_RELEASE_FILE="${TEMP_TEST_DIR}/os-release" \
         UTI_SYSTEMD_RUNTIME_DIR="${TEMP_TEST_DIR}/systemd" \
-        "${INSTALLER}" --dry-run --no-color 2>&1
+        bash "${INSTALLER}" --dry-run --no-color 2>&1
     )"; then
         fail "Ubuntu older than 20.04 is rejected"
     else
@@ -253,10 +259,12 @@ run_mock_install_test() {
     printf 'NeedsLogin\n' > "${TEMP_TEST_DIR}/mock.state"
 
     for command_name in apt-get curl flock gpg id install jq systemctl tailscale; do
-        ln -s "${MOCK_COMMAND}" "${TEMP_TEST_DIR}/mockbin/${command_name}"
+        cp -- "${MOCK_COMMAND}" "${TEMP_TEST_DIR}/mockbin/${command_name}"
+        chmod 0755 "${TEMP_TEST_DIR}/mockbin/${command_name}"
     done
 
     output="$(
+        env \
         PATH="${TEMP_TEST_DIR}/mockbin:${PATH}" \
         UTI_OS_RELEASE_FILE="${TEMP_TEST_DIR}/os-release" \
         UTI_SYSTEMD_RUNTIME_DIR="${TEMP_TEST_DIR}/systemd" \
@@ -264,7 +272,7 @@ run_mock_install_test() {
         MOCK_LOG="${TEMP_TEST_DIR}/mock.log" \
         MOCK_STATE="${TEMP_TEST_DIR}/mock.state" \
         EXPECTED_SECRET="${secret}" \
-        "${INSTALLER}" \
+        bash "${INSTALLER}" \
             --no-color \
             --auth-key-file "${TEMP_TEST_DIR}/auth-key" \
             --hostname app-01 \

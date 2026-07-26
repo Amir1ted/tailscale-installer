@@ -9,7 +9,7 @@ IFS=$'\n\t'
 umask 022
 
 readonly SCRIPT_NAME="${0##*/}"
-readonly SCRIPT_VERSION="1.0.0"
+readonly SCRIPT_VERSION="1.0.1"
 readonly DEFAULT_CHANNEL="stable"
 
 # These overrides are intentionally undocumented and exist only so the

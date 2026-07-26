@@ -27,7 +27,7 @@ lint:
 	fi
 
 test:
-	./tests/test.sh
+	bash tests/test.sh
 
 check: syntax lint test
 

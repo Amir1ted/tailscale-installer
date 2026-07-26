@@ -28,7 +28,7 @@ improve correctness or security.
 ```bash
 bash -n install.sh tests/test.sh tests/mock-command.sh
 shellcheck install.sh tests/test.sh tests/mock-command.sh
-./tests/test.sh
+bash tests/test.sh
 ```
 
 If ShellCheck is not installed locally, `make check` warns and continues; CI

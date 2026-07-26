@@ -1,14 +1,7 @@
 version: 2
 
 updates:
-  - package-ecosystem: github-actions
-    directory: /
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: monthly
-    labels:
-      - dependencies
-      - github-actions
-    groups:
-      github-actions:
-        patterns:
-          - "*"
+      interval: "monthly"

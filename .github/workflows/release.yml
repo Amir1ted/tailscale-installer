@@ -35,7 +35,7 @@ jobs:
       - name: Run checks
         run: |
           bash -n install.sh tests/test.sh tests/mock-command.sh
-          ./tests/test.sh
+          bash tests/test.sh
 
       - name: Build archive and checksum
         env:
