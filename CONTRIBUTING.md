@@ -39,7 +39,7 @@ still enforces it.
 - Explain what changed and why.
 - Describe failure and rollback behavior.
 - Add or update tests for logic changes.
-- Update both READMEs when user-facing behavior changes.
+- Update the README when user-facing behavior changes.
 - Update `CHANGELOG.md` under `Unreleased`.
 - Confirm no secrets or environment-specific data are present.
 

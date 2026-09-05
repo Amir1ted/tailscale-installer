@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Unreleased
 
+### Changed
+
+- Consolidated documentation to English only; removed `README.fa.md` and the
+  bilingual documentation requirement from the contribution checklists
+
 ## 1.0.1 - 2026-07-26
 
 ### Fixed

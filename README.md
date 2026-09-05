@@ -1,12 +1,11 @@
 # Ubuntu Tailscale Installer
 
+[![CI](https://github.com/Amir1ted/tailscale-installer/actions/workflows/ci.yml/badge.svg)](https://github.com/Amir1ted/tailscale-installer/actions/workflows/ci.yml)
 [![Ubuntu 20.04+](https://img.shields.io/badge/Ubuntu-20.04%2B-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com/)
 [![ShellCheck](https://img.shields.io/badge/lint-ShellCheck-4EAA25?logo=gnu-bash&logoColor=white)](https://www.shellcheck.net/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**English** | [فارسی](README.fa.md)
-
-A security-conscious, idempotent Bash installer for installing and provisioning
+A security-conscious, idempotent Bash installer that installs and provisions
 Tailscale on Ubuntu Server from Tailscale's official APT repository.
 
 > This is an independent community project. It is not affiliated with or
@@ -14,26 +13,26 @@ Tailscale on Ubuntu Server from Tailscale's official APT repository.
 
 ## Why this project?
 
-The official one-line installer is convenient, but production automation often
-needs a reviewable workflow, safe secret handling, repeatable behavior, CI, and
-clear operational documentation. This project provides those pieces without
-hiding the underlying APT and `tailscale` commands.
+The official one-line installer is convenient, but production automation
+usually needs a reviewable workflow, safe secret handling, repeatable
+behavior, CI, and clear operational documentation. This project provides those
+pieces without hiding the underlying APT and `tailscale` commands.
 
 Key features:
 
 - Uses the official, codename-specific Tailscale APT repository
-- Avoids piping a remote script directly into a shell
-- Can be run repeatedly without creating duplicate configuration
+- Never pipes a remote script directly into a shell
+- Safe to run repeatedly; no duplicate configuration is created
 - Supports interactive login and unattended auth-key provisioning
-- Passes auth keys to Tailscale through `file:` rather than the process list
-- Validates Ubuntu, systemd, repository metadata, hostnames, tags, and key-file
-  permissions
+- Passes auth keys through `--auth-key=file:PATH` rather than the process list
+- Validates Ubuntu, systemd, repository metadata, hostnames, tags, and
+  key-file permissions
 - Enables and verifies `tailscaled`
 - Supports Tailscale SSH, subnet-route acceptance, custom hostnames, tags, and
   a non-root operator
 - Keeps full Ubuntu upgrades opt-in
-- Includes dry-run mode, strict Bash settings, tests, ShellCheck CI, issue
-  templates, release automation, and bilingual documentation
+- Ships with dry-run mode, strict Bash settings, a test suite, ShellCheck CI,
+  issue templates, and release automation
 
 ## Requirements
 
@@ -49,14 +48,14 @@ releases work dynamically through `VERSION_CODENAME`.
 
 ## Quick start
 
-Extract the project, review the script, and run:
+Clone or download the project, review the script, then run:
 
 ```bash
 chmod +x install.sh
 sudo ./install.sh --login
 ```
 
-For an installation that does not start authentication:
+To install without starting authentication:
 
 ```bash
 sudo ./install.sh
@@ -68,8 +67,8 @@ dependencies. It does **not** upgrade every package on the server.
 
 ## Unattended server provisioning
 
-Create a tagged, pre-authorized auth key in the Tailscale admin console, store it
-in a root-readable file, and run:
+Create a tagged, pre-authorized auth key in the Tailscale admin console, store
+it in a root-only file, and run:
 
 ```bash
 sudo install -m 600 /dev/null /run/tailscale-authkey
@@ -82,13 +81,13 @@ sudo ./install.sh \
   --ssh
 ```
 
-Delete the source key file after successful provisioning if your secret manager
-does not manage its lifecycle. Prefer one-off, tagged, pre-authorized keys when
-they fit your deployment.
+Delete the source key file after successful provisioning if your secret
+manager does not manage its lifecycle. Prefer one-off, tagged, pre-authorized
+keys when they fit your deployment.
 
 ## Common examples
 
-Preview all planned actions:
+Preview every planned action:
 
 ```bash
 sudo ./install.sh --dry-run --no-color
@@ -134,8 +133,8 @@ sudo ./install.sh --upgrade-system --login
 | `--upgrade-system` | Opt in to a full `apt-get upgrade` |
 | `--dry-run` | Print planned commands without persistent system changes |
 | `--no-color` | Disable ANSI colors |
-| `--help` | Show built-in help |
-| `--version` | Print the installer version |
+| `-h`, `--help` | Show built-in help |
+| `-v`, `--version` | Print the installer version |
 
 See [Usage](docs/USAGE.md) for behavior, automation examples, and exit
 semantics.
@@ -149,13 +148,15 @@ semantics.
   repository, track, Ubuntu codename, and `signed-by` path.
 - A supplied auth-key file must be a regular readable file with no group or
   other permissions.
-- The key is supplied as `--auth-key=file:PATH`, so its value is not placed in
-  the command-line arguments or installer logs.
+- The key is supplied as `--auth-key=file:PATH`, so its value never lands in
+  command-line arguments or installer logs.
 - `TS_AUTHKEY` is supported for CI compatibility, but the installer immediately
   copies it into a temporary `0600` file and unsets its local copy. A mounted
   secret file is still preferred.
 - Enabling Tailscale SSH does not grant access by itself. Your tailnet access
   policy remains authoritative.
+- Disabling key expiry is never done automatically. Do it only for trusted
+  nodes, and only if you accept the risk.
 
 Read [Security notes](docs/SECURITY-NOTES.md) and the project's
 [security policy](SECURITY.md) before a production rollout.
